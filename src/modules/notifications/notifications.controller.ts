@@ -4,7 +4,7 @@ import {type Request } from 'express';
 import { UserDto } from './dto/user-schema.dto';
 import { NotificationDto } from './dto/create-notification.dto';
 import { GetNotificationDto } from './dto/get-notification.dto';
-import { ReadParamDto } from './dto/update-notifcation.dto';
+import { ReadBodyDto, ReadParamDto, RecipientDto } from './dto/update-notifcation.dto';
 import { UnreadQueryDto } from './dto/unread-count.dto';
 
 
@@ -41,10 +41,27 @@ export class NotificationsController {
         return await this.notificationsService.markAsRead(user.id,readParamDto);
     }
 
+    @Patch('/read')
+    async markAsReadMultiple(@Req() req:Request, @Body() readBodyDto:ReadBodyDto)
+    {
+        //@ts-ignore
+        const user  = req.user as UserDto;
+        return await this.notificationsService.markmultipleAsRead(user.id,readBodyDto);
+    }
+
+    @Patch('/all-read')
+    async markAllRead(@Req() req:Request, @Query() recipientDto:RecipientDto)
+    {
+        //@ts-ignore
+        const user:UserDto = req.user;
+        return await this.notificationsService.markAllNotificationsAsRead(recipientDto,user.id);
+    }
+
     @Get('/unread-count')
     async unread(@Req() req:Request, @Query() unreadDto:UnreadQueryDto)
     {
         //@ts-ignore
         const user  = req.user as UserDto;
+        return await this.notificationsService.getCountUnread(user.id,unreadDto);
     }
 }

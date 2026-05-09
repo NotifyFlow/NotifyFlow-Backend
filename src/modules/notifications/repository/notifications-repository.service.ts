@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { NotificationDto } from "../dto/create-notification.dto";
 import { UserDto } from "../dto/user-schema.dto";
-import { createNotification, getIdempotencyKey, getNotificationsByRecipientId, markNotificationAsRead } from "src/db/queries/notifications.query";
+import { createNotification, getIdempotencyKey, getNotificationsByRecipientId, markAllNotificationsReadByRecipientId, markNotificationAsRead, markNotificationsAsRead } from "src/db/queries/notifications.query";
 import { DbExecutor } from "src/types/db.types";
 import { countUnread } from "src/db/queries/notifications.query";
 
@@ -30,6 +30,16 @@ export class NotificationRepositoryService{
     {
         const notification = await markNotificationAsRead(userId,notificationId);
         return notification;
+    }
+
+    async markMultipleNotificationsAsRead(userId:string,notifications:string[])
+    {
+        return await markNotificationsAsRead(userId,notifications);
+    }
+
+    async markAllNotificationsAsRead(recipientId:string,userId:string)
+    {
+        return await markAllNotificationsReadByRecipientId(recipientId,userId);
     }
 
     async getunreadCount(userId:string,recipientId:string)

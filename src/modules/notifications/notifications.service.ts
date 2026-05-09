@@ -6,9 +6,12 @@ import { RecipientRepositoryService } from './repository/recipient-repository.se
 import { DeliverRepositoryService } from './repository/delivery-repository.service';
 import { db } from 'src/db';
 import { GetNotificationDto } from './dto/get-notification.dto';
-import { ReadParamDto } from './dto/update-notifcation.dto';
+import { ReadBodyDto, ReadParamDto, RecipientDto } from './dto/update-notifcation.dto';
 import { countUnread } from 'src/db/queries/notifications.query';
 import { UnreadQueryDto } from './dto/unread-count.dto';
+import { pushQueue } from 'src/queues/push.queue';
+import { emailQueue } from 'src/queues/email.queue';
+import { inAppQueue } from 'src/queues/inapp.queue';
 
 
 @Injectable()
@@ -39,7 +42,25 @@ export class NotificationsService {
             const deliveries = await this.deliveryRepositoryService.createDeliveries(tx,notification.id,notificactionDto.channel);
             return {notification,deliveries};
         });   
-        return res;     
+        
+        if(!("deliveries" in res))        
+            return res;
+        
+        const queueMap = {
+            PUSH: pushQueue,
+            EMAIL: emailQueue,
+            IN_APP: inAppQueue,
+            };
+        
+        const deliveries = res.deliveries;
+        
+        await Promise.all(deliveries.map(async(job)=>{
+            const queue = queueMap[job.channel];
+            if(!queue)return;
+            queue.add(`JOB_${job.channel}`,{deliveryId:job.id});
+        }))
+        
+        return res;
     }
 
     /**
@@ -61,6 +82,17 @@ export class NotificationsService {
         if(!notif)
             throw new NotFoundException('Application Doesnot own the Notification');
         return notif
+    }
+
+    async markmultipleAsRead(userId:string,readBodyDto:ReadBodyDto)
+    {
+        const readNotifications = await this.notificationRepositorySerice.markMultipleNotificationsAsRead(userId,readBodyDto.notificationIds);
+        return readNotifications;
+    }
+
+    async markAllNotificationsAsRead(recipientDto:RecipientDto,userId:string)
+    {
+        return await this.notificationRepositorySerice.markNotificationAsRead(recipientDto.recipientId,userId);
     }
 
     async getCountUnread(userId:string,unreadDto:UnreadQueryDto)

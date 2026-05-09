@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "..";
 import { notifications } from "../schema";
 import { DbExecutor, Type } from "src/types/db.types";
@@ -29,6 +29,19 @@ export async function markNotificationAsRead(userId:string, notificationId:strin
     const [notification] = await db.update(notifications).set({isRead:true}).where(and(eq(notifications.userId,userId),eq(notifications.id,notificationId))).returning();
     return notification;
 }
+
+export async function markNotificationsAsRead(userId:string,notificationIds:string[]) {
+    const readNotifications = await db.update(notifications).set({isRead:true}).where(and(eq(notifications.userId,userId),inArray(notifications.id,notificationIds))).returning();
+    return readNotifications;
+}
+
+export async function markAllNotificationsReadByRecipientId(recipientId:string,userId:string)
+{
+    return await db.update(notifications).set({isRead:true}).where(and(eq(notifications.recipientId,recipientId),
+                                                                        eq(notifications.userId,userId)
+                                                                       ,eq(notifications.isRead,false)),).returning();
+}
+
 
 export async function countUnread(userId:string,recipientId:string)
 {
