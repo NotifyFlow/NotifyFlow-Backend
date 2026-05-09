@@ -1,0 +1,50 @@
+import { Body, Controller, Get , Param, Patch, Post, Query, Req} from '@nestjs/common';
+import { NotificationsService } from './notifications.service';
+import {type Request } from 'express';
+import { UserDto } from './dto/user-schema.dto';
+import { NotificationDto } from './dto/create-notification.dto';
+import { GetNotificationDto } from './dto/get-notification.dto';
+import { ReadParamDto } from './dto/update-notifcation.dto';
+import { UnreadQueryDto } from './dto/unread-count.dto';
+
+
+type Requ = Request & UserDto;
+
+@Controller('notifications')
+export class NotificationsController {
+    constructor(private notificationsService:NotificationsService){};
+    @Get()
+    async notifications(@Query() getNotifDto:GetNotificationDto)
+    {
+        //@ts-ignore
+        const user:UserDto = req.user;
+        return await this.notificationsService.getNotifications(user,getNotifDto);
+    }
+
+    @Post()
+    async create(@Req() req:Request, @Body() notificactionDto:NotificationDto)
+    {
+        //@ts-ignore
+        const user  = req.user as UserDto;
+        return await this.notificationsService.createNotification(user,notificactionDto);
+    }
+
+    /*
+        - This API is for marking the notification as Read, by the Developer/App
+        - Checks whether The Tenant owns it, then returns the updated notif, else throws error. 
+    */
+    @Patch(':/notificationId/read')
+    async read(@Req() req:Request, @Param() readParamDto:ReadParamDto)
+    {
+        //@ts-ignore
+        const user  = req.user as UserDto;
+        return await this.notificationsService.markAsRead(user.id,readParamDto);
+    }
+
+    @Get('/unread-count')
+    async unread(@Req() req:Request, @Query() unreadDto:UnreadQueryDto)
+    {
+        //@ts-ignore
+        const user  = req.user as UserDto;
+    }
+}
