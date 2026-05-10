@@ -2,7 +2,7 @@
 import { pgTable, varchar, timestamp, uuid, pgEnum,text,boolean, jsonb, uniqueIndex, index } from "drizzle-orm/pg-core";
 
 export const notificationTypeEnum = pgEnum("notification_type",[ "MESSAGE_RECEIVED","SYSTEM_ANNOUNCEMENT","ACCOUNT_ALERT","MARKETPLACE_UPDATE",]);
-export const statusEnum = pgEnum("status",["PENDING","SENT","FAILED"]);
+export const statusEnum = pgEnum("status",["PENDING","PROCESSING","SENT","FAILED"]);
 export const channelEnum = pgEnum("channel",["IN_APP","EMAIL","PUSH"]);
 export const platformEnum = pgEnum("platform", ["WEB","ANDROID","IOS",]);
 export const subscriptionTierEnum = pgEnum("subscription_tier", ["FREE","PRO","ENTERPRISE"]);
@@ -78,7 +78,7 @@ export const notifications = pgTable('notifications',{
         "notifications_idempotency_idx"
         ).on(table.idempotencyKey),
 
-        tenantIdempotencyTechnique: uniqueIndex("notification_user_idempotency_unique").on(table.userId,table.recipientId),
+        tenantIdempotencyTechnique: uniqueIndex("notification_user_idempotency_unique").on(table.userId,table.idempotencyKey),
     }));
 
 export const notificationDeliveries = pgTable("notification_deliveries",{

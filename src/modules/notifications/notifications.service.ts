@@ -9,9 +9,9 @@ import { GetNotificationDto } from './dto/get-notification.dto';
 import { ReadBodyDto, ReadParamDto, RecipientDto } from './dto/update-notifcation.dto';
 import { countUnread } from 'src/db/queries/notifications.query';
 import { UnreadQueryDto } from './dto/unread-count.dto';
-import { pushQueue } from 'src/queues/push.queue';
-import { emailQueue } from 'src/queues/email.queue';
-import { inAppQueue } from 'src/queues/inapp.queue';
+import { pushQueue } from 'src/infrastructure/queues/push.queue';
+import { emailQueue } from 'src/infrastructure/queues/email.queue';
+import { inAppQueue } from 'src/infrastructure/queues/inapp.queue';
 
 
 @Injectable()
@@ -56,8 +56,19 @@ export class NotificationsService {
         
         await Promise.all(deliveries.map(async(job)=>{
             const queue = queueMap[job.channel];
+            
             if(!queue)return;
-            queue.add(`JOB_${job.channel}`,{deliveryId:job.id});
+
+            await queue.add(`SEND_${job.channel}`,
+                            {deliveryId:job.id},
+                            {attempts:3,
+                             backoff:{
+                                type:"exponential",
+                                delay:2000
+                                },
+                             removeOnComplete:true
+                             },
+                        );
         }))
         
         return res;

@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { redisConnection } from "../config/redis";
+import { redisConnection } from "../../config/redis";
 
 
 const worker = new Worker('delivery-queue', 

@@ -17,15 +17,21 @@ export class NotificationsController {
     async notifications(@Query() getNotifDto:GetNotificationDto)
     {
         //@ts-ignore
-        const user:UserDto = req.user;
+        const user:UserDto = {
+            id:"ce6a660e-fa8a-4535-9057-f5fb2f3e6276",
+            username:"anirudh"
+        }
         return await this.notificationsService.getNotifications(user,getNotifDto);
     }
 
-    @Post()
+    @Post('/')
     async create(@Req() req:Request, @Body() notificactionDto:NotificationDto)
     {
         //@ts-ignore
-        const user  = req.user as UserDto;
+        const user  = {
+            id:"ece6ea49-a3dd-4475-a5b0-21a3605b7493",
+            username:"anirudh"
+        };
         return await this.notificationsService.createNotification(user,notificactionDto);
     }
 
@@ -33,7 +39,7 @@ export class NotificationsController {
         - This API is for marking the notification as Read, by the Developer/App
         - Checks whether The Tenant owns it, then returns the updated notif, else throws error. 
     */
-    @Patch(':/notificationId/read')
+    @Patch('/:notificationId/read')
     async read(@Req() req:Request, @Param() readParamDto:ReadParamDto)
     {
         //@ts-ignore

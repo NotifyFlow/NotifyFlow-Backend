@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FCM Test</title>
+</head>
+<body>
+
+    <h1>FCM Push Test</h1>
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+        import {
+            getMessaging,
+            getToken
+        } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging.js";
+
+        const firebaseConfig = 
+
+        const app = initializeApp(firebaseConfig);
+
+        const messaging = getMessaging(app);
+
+        async function main() {
+
+            const permission = await Notification.requestPermission();
+
+            console.log("Permission:", permission);
+
+            if (permission !== "granted") {
+                console.log("Notification permission denied");
+                return;
+            }
+
+            const token = await getToken(messaging, {
+                vapidKey: "BCM9L3ENZxdMBO7X28-k4YvHe27dioyN_CRapN85oNBQk0zZkCnYS4uH2p9Jbpu7sKExYHiKpSoWVSn8R-SI4AA"
+            });
+
+            console.log("FCM TOKEN:");
+            console.log(token);
+        }
+
+        main();
+
+    </script>
+
+</body>
+</html>

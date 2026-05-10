@@ -50,3 +50,10 @@ export async function countUnread(userId:string,recipientId:string)
                                                                                        eq(notifications.recipientId,recipientId)));
     return unreadCount;
 }
+
+export async function getNotificationById(notificationId:string)
+{
+    const [notif]= await db.select().from(notifications).where(eq(notifications.id,notificationId));
+    return notif;
+}
+

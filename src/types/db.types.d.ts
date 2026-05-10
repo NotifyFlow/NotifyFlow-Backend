@@ -9,3 +9,5 @@ type Transaction = PgTransaction<PostgresJsQueryResultHKT, typeof schema, Extrac
 
 export type Type = "MESSAGE_RECEIVED"|"SYSTEM_ANNOUNCEMENT"|"ACCOUNT_ALERT"|"MARKETPLACE_UPDATE";
 export type DbExecutor = typeof db | Transaction;
+
+export type NotificationType = typeof schema.notifications.$inferSelect;
