@@ -1,4 +1,15 @@
+import dotenv from 'dotenv';
+
+dotenv.config({});
+
 import admin from "firebase-admin";
+
+
+// console.log({
+//   projectId: process.env.FIREBASE_PROJECT_ID,
+//   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+//   privateKey: process.env.FIREBASE_PRIVATE_KEY,
+// });
 
 const firebaseApp = admin.initializeApp({
     credential:admin.credential.cert({

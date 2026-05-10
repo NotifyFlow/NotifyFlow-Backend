@@ -1,3 +1,4 @@
+import '../../config/env';
 import { Job, Worker } from "bullmq";
 import { redisConnection } from "../../config/redis";
 import processDelivery from "../processors/delivery.processor";

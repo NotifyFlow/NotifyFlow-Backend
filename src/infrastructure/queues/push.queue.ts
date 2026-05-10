@@ -1,3 +1,4 @@
+import '../../config/env';
 import { Queue } from "bullmq";
 import { redisConnection} from "../../config/redis"
 
