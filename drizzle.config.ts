@@ -6,6 +6,6 @@ export default defineConfig({
   schema: './src/db/schema.ts',
   dialect: 'postgresql',
   dbCredentials: {
-    url: "postgresql://admin:ani31@localhost:5432/naas",
+    url: "postgresql://admin:ani31@localhost:5433/naas",
   },
 });

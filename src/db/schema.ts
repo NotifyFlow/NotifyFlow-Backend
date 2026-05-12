@@ -1,4 +1,5 @@
 
+import { unique } from "drizzle-orm/pg-core";
 import { pgTable, varchar, timestamp, uuid, pgEnum,text,boolean, jsonb, uniqueIndex, index } from "drizzle-orm/pg-core";
 
 export const notificationTypeEnum = pgEnum("notification_type",[ "MESSAGE_RECEIVED","SYSTEM_ANNOUNCEMENT","ACCOUNT_ALERT","MARKETPLACE_UPDATE",]);
@@ -110,8 +111,10 @@ export const notificationDeliveries = pgTable("notification_deliveries",{
 
 export const userDevices = pgTable('user_devices',{
     id: uuid("id").primaryKey().defaultRandom(),
+    userId:uuid("user_id").notNull().references(()=>users.id,{onDelete:"cascade"}),
     recipientId: uuid("recepient_id").notNull().references(()=>recipients.id,{onDelete:"cascade"}),
     fcmToken: varchar("fcm_token",{ length: 512 }).unique().notNull(),
+    deviceId: varchar("device_id",{ length: 255 }).notNull(),
     platform: platformEnum("platform").notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
@@ -124,6 +127,9 @@ export const userDevices = pgTable('user_devices',{
     recipientIdx: index("device_recipient_idx").on(
       table.recipientId
     ),
+
+    recipientDeviceUnique: unique("recipient_device_unique")
+      .on(table.recipientId, table.deviceId),
 
     tokenIdx: index("device_token_idx").on(
       table.fcmToken

@@ -2,13 +2,13 @@ import { Job } from "bullmq";
 import { JobData,JobType } from "../../types/workers.types";
 import { claimPendingDelivery, setFailedById, setPendingById, setSentById } from "../../db/queries/notificationdelivery.query";
 import { getNotificationById } from "../../db/queries/notifications.query";
-import { sendPush } from "../provider/push/push.test.provider.";
+import pushHandler from "../handlers/push.handler";
 
 
 export default async function processDelivery(job:Job)
 {
-    const providerMap ={
-        "SEND_PUSH":sendPush,
+    const handlerMap ={
+        "SEND_PUSH":pushHandler,
         //"SEND_EMAIL":null
     }
     const data:JobData = job.data;
@@ -25,13 +25,15 @@ export default async function processDelivery(job:Job)
         if(jobName === "SEND_IN_APP")
             isSent=true;
 
-        if(providerMap[jobName])
-            isSent = await providerMap[jobName](notification);
+        if(handlerMap[jobName])
+        {
+            handlerMap[jobName](notification);
+        }
 
-        console.log("Delivery is sent");
+        console.log(`[PUSH] delivery=${deliveryId} successfully sent!`);
         await setSentById(deliveryId);
-        
     }
+    
     catch(e)
     {   
         const maxAttempts = job.opts.attempts ?? 3;

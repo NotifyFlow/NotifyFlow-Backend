@@ -11,3 +11,7 @@ export type Type = "MESSAGE_RECEIVED"|"SYSTEM_ANNOUNCEMENT"|"ACCOUNT_ALERT"|"MAR
 export type DbExecutor = typeof db | Transaction;
 
 export type NotificationType = typeof schema.notifications.$inferSelect;
+
+export type PlatformType = "WEB" | "ANDROID" | "IOS";
+
+export type WierdType = {}
