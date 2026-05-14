@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Realtime Notification Test</title>
+</head>
+<body>
+
+    <h1>Realtime Notification Test</h1>
+
+    <div id="status">Connecting...</div>
+
+    <hr/>
+
+    <h2>Notifications</h2>
+
+    <ul id="notifications"></ul>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+    <script>
+
+        // Replace with actual recipientId from DB
+        const RECIPIENT_ID = "f48d93be-7e83-45d6-b799-d4c66ac15781";
+
+        const socket = io("http://localhost:3000");
+
+        const statusDiv =
+            document.getElementById("status");
+
+        const notificationsList =
+            document.getElementById("notifications");
+
+        socket.on("connect", () => {
+
+            console.log("Connected:", socket.id);
+
+            statusDiv.innerText =
+                `Connected: ${socket.id}`;
+
+            socket.emit(
+                "REGISTER_RECIPIENT",
+                RECIPIENT_ID
+            );
+
+            console.log(
+                "Recipient registered"
+            );
+        });
+
+        socket.on("disconnect", () => {
+
+            console.log("Disconnected");
+
+            statusDiv.innerText =
+                "Disconnected";
+        });
+
+        socket.on(
+            "NEW_NOTIFICATION",
+
+            (data) => {
+
+                console.log(
+                    "Notification received:",
+                    data
+                );
+
+                const li =
+                    document.createElement("li");
+
+                li.innerHTML = `
+                    <strong>${data.title}</strong>
+                    <br/>
+                    ${data.body}
+                `;
+
+                notificationsList.prepend(li);
+            }
+        );
+
+    </script>
+
+</body>
+</html>

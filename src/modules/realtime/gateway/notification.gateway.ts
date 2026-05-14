@@ -11,6 +11,7 @@ export class NotificationWebSocketGateway implements OnGatewayConnection, OnGate
     server:Server;
 
     handleConnection(client: Socket) {
+        this.registryService.addSocket("recipient-demo-user-001",client.id)
         console.log(`[Realtime] Socket connected: ${client.id}`);
     }
 

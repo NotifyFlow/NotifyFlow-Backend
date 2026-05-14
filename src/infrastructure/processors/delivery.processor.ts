@@ -3,12 +3,14 @@ import { JobData,JobType } from "../../types/workers.types";
 import { claimPendingDelivery, setFailedById, setPendingById, setSentById } from "../../db/queries/notificationdelivery.query";
 import { getNotificationById } from "../../db/queries/notifications.query";
 import pushHandler from "../handlers/push.handler";
+import inAppHandler from "../handlers/inapp.handler";
 
 
 export default async function processDelivery(job:Job)
 {
     const handlerMap ={
         "SEND_PUSH":pushHandler,
+        "SEND_IN_APP":inAppHandler
         //"SEND_EMAIL":null
     }
     const data:JobData = job.data;
@@ -21,17 +23,15 @@ export default async function processDelivery(job:Job)
         
         const jobName= job.name as JobType;
 
-        let isSent=false;
-        if(jobName === "SEND_IN_APP")
-            isSent=true;
-
         if(handlerMap[jobName])
         {
+            console.log(`[PROCESSOR] Sent notification to ${handlerMap[jobName]}`)
             handlerMap[jobName](notification);
         }
 
-        console.log(`[PUSH] delivery=${deliveryId} successfully sent!`);
+        
         await setSentById(deliveryId);
+        console.log(`[PUSH] delivery=${deliveryId} successfully sent!`);
     }
     
     catch(e)

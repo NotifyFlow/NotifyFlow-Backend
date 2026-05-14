@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "inappworker": "tsx src/infrastructure/workers/inapp.worker.ts",
+    "inappq": "tsx src/infrastructure/queues/inapp.queue.ts",
+    "inapptest": "serve ./test/inapp-test-client -l 5500"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

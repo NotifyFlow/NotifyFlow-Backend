@@ -7,14 +7,19 @@ export class SocketRegistryService
 
     addSocket(recipientId:string,socketId:string)
     {
-        if(this.registry.has(recipientId))
-        {   
-            this.registry.get(recipientId)?.add(socketId);
-        }
-        else
+        let sockets =this.registry.get(recipientId);
+        if(!sockets)
         {
-            this.registry.set(recipientId,new Set<string>());
+            sockets = new Set<string>();
+            this.registry.set(
+                recipientId,
+                sockets
+            );
         }
+        sockets.add(socketId);
+        console.log(
+            `[GATEWAY_REGISTRY] Recipient Id: ${recipientId}, socketId:${socketId} registered`
+        );
     }
 
     deleteSocket(socketId:string)
@@ -24,8 +29,10 @@ export class SocketRegistryService
             if(sockets.has(socketId))
             {
                 sockets.delete(socketId);
-                if(sockets.size === 0)
+                if(sockets.size === 0){
                     this.registry.delete(recipientId);
+                    console.log(`[GATEWAY_REGISTRY] for Recipeint Id: ${recipientId} , socketId:${socketId} is deleted`);
+                }
                 break;
             }
         }

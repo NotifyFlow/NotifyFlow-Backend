@@ -19,6 +19,7 @@ export class InAppNotificationSubscribeService implements OnModuleInit{
             if(channel !== "realtime.notifications")
                     return;
             const data:PublishDataType = JSON.parse(message);
+            console.log(`[SUBSCRIBER] Going to emit to ${data.recipientId}`);
             this.notificationEmitter.emittor(data.recipientId,data.payload);
         });
     }

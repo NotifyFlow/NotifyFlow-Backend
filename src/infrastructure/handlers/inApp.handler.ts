@@ -1,4 +1,4 @@
-import { NotificationType } from "src/types/db.types";
+import {type NotificationType } from "src/types/db.types";
 import { redisPubClient } from "../realtime/redis/redis-pubsub";
 
 

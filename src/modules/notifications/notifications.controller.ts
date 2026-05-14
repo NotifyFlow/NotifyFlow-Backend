@@ -18,7 +18,7 @@ export class NotificationsController {
     {
         //@ts-ignore
         const user:UserDto = {
-            id:"ce6a660e-fa8a-4535-9057-f5fb2f3e6276",
+            id:"187626c8-4559-42ff-9613-10d24fd707c8",
             username:"anirudh"
         }
         return await this.notificationsService.getNotifications(user,getNotifDto);
@@ -29,7 +29,7 @@ export class NotificationsController {
     {
         //@ts-ignore
         const user  = {
-            id:"ece6ea49-a3dd-4475-a5b0-21a3605b7493",
+            id:"187626c8-4559-42ff-9613-10d24fd707c8",
             username:"anirudh"
         };
         return await this.notificationsService.createNotification(user,notificactionDto);

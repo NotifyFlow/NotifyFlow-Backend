@@ -9,7 +9,7 @@ import { RecipientRepositoryService } from './repository/recipient-repository.se
 
 
 @Module({
-  imports:[UsersModule,NotificationDevicesModule],
+  imports:[UsersModule],
   controllers: [NotificationsController],
   providers: [NotificationsService,DeliverRepositoryService,NotificationRepositoryService,RecipientRepositoryService]
 })

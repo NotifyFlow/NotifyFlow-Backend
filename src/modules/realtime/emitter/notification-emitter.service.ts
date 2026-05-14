@@ -12,7 +12,7 @@ export class NotificationEmitterService{
      emittor(recipientId:string,payload:any)
      {
        const sockets = this.registry.getSocketsByRecipientId(recipientId);
-
+      console.log(`[EMITTER_SERVICE]for ${recipientId}: ${sockets}`);
        if(!sockets||sockets?.size === 0)
             return;
        

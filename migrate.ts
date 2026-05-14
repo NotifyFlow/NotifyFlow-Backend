@@ -14,11 +14,13 @@ for (const file of files) {
 
   console.log(`Running migration: ${file}`);
 
+  const sql = fs.readFileSync(fullPath, "utf8");
+
   execSync(
-    `docker exec -i naas-postgres psql -U admin -d naas < "${fullPath}"`,
+    `docker exec -i naas-postgres psql -U admin -d naas`,
     {
-      stdio: "inherit",
-      shell: "/bin/bash",
+      input: sql,
+      stdio: ["pipe", "inherit", "inherit"],
     }
   );
 }
