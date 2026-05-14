@@ -1,6 +1,6 @@
 import { PlatformType } from "src/types/db.types";
 import { db } from "..";
-import { userDevices } from "../schema";
+import { userDevices } from "../schema/schema";
 import { eq } from "drizzle-orm";
 
 export async function createUserDevice(userId:string,fcmToken:string,platform:PlatformType,recipientId:string,deviceId:string)

@@ -25,7 +25,7 @@ export default async function processDelivery(job:Job)
 
         if(handlerMap[jobName])
         {
-            console.log(`[PROCESSOR] Sent notification to ${handlerMap[jobName]}`)
+            console.log(`[PROCESSOR] Sent notification to ${jobName.split('',5)[1]}`)
             handlerMap[jobName](notification);
         }
 

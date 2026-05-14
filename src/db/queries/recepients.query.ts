@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { type DbExecutor } from "src/types/db.types";
-import { recipients } from "../schema";
+import { recipients } from "../schema/schema";
 import { db } from "..";
 
 

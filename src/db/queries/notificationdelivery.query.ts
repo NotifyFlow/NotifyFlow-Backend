@@ -1,5 +1,5 @@
 import { DbExecutor } from "../../types/db.types";
-import { notificationDeliveries } from "../schema";
+import { notificationDeliveries } from "../schema/schema";
 import { db } from "..";
 import { and, eq } from "drizzle-orm";
 

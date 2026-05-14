@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "..";
-import { notifications } from "../schema";
+import { notifications } from "../schema/schema";
 import { DbExecutor, Type } from "src/types/db.types";
 
 
