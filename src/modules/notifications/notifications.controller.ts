@@ -1,4 +1,4 @@
-import { Body, Controller, Get , Param, Patch, Post, Query, Req} from '@nestjs/common';
+import { Body, Controller, Get , Param, Patch, Post, Query, Req, UseGuards} from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import {type Request } from 'express';
 import { UserDto } from './dto/user-schema.dto';
@@ -6,22 +6,22 @@ import { NotificationDto } from './dto/create-notification.dto';
 import { GetNotificationDto } from './dto/get-notification.dto';
 import { ReadBodyDto, ReadParamDto, RecipientDto } from './dto/update-notifcation.dto';
 import { UnreadQueryDto } from './dto/unread-count.dto';
+import { ApiKeyGuard } from '../auth/guards/api-key.guard';
+import { User } from './decorators/user.decorator';
 
 
-type Requ = Request & UserDto;
+
 
 @Controller('notifications')
 export class NotificationsController {
     constructor(private notificationsService:NotificationsService){};
     @Get()
-    async notifications(@Query() getNotifDto:GetNotificationDto)
+    @UseGuards(ApiKeyGuard)
+    async notifications(@Query() getNotifDto:GetNotificationDto, @User() user:{id:string})
     {
         //@ts-ignore
-        const user:UserDto = {
-            id:"187626c8-4559-42ff-9613-10d24fd707c8",
-            username:"anirudh"
-        }
-        return await this.notificationsService.getNotifications(user,getNotifDto);
+       
+        return await this.notificationsService.getNotifications(user.id,getNotifDto);
     }
 
     @Post('/')

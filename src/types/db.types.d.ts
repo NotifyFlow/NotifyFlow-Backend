@@ -9,9 +9,12 @@ type Transaction = PgTransaction<PostgresJsQueryResultHKT, typeof schema, Extrac
 
 export type Type = "MESSAGE_RECEIVED"|"SYSTEM_ANNOUNCEMENT"|"ACCOUNT_ALERT"|"MARKETPLACE_UPDATE";
 export type DbExecutor = typeof db | Transaction;
+export type subscriptionTierType = "FREE"|"PRO"|"ENTERPRISE";
+
 
 export type NotificationType = typeof schema.notifications.$inferSelect;
 
 export type PlatformType = "WEB" | "ANDROID" | "IOS";
+export type CurrentUserType = {userId:string,email:string};
 
 export type WierdType = {}

@@ -7,7 +7,6 @@ import { DeliverRepositoryService } from './repository/delivery-repository.servi
 import { db } from 'src/db';
 import { GetNotificationDto } from './dto/get-notification.dto';
 import { ReadBodyDto, ReadParamDto, RecipientDto } from './dto/update-notifcation.dto';
-import { countUnread } from 'src/db/queries/notifications.query';
 import { UnreadQueryDto } from './dto/unread-count.dto';
 import { pushQueue } from 'src/infrastructure/queues/push.queue';
 import { emailQueue } from 'src/infrastructure/queues/email.queue';

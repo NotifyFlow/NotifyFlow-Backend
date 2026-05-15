@@ -15,6 +15,7 @@ export const users = pgTable("users",{
     email: varchar("email",{length:256}).unique().notNull(),
     subscriptionTier: subscriptionTierEnum("subscription_tier").default("FREE").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    profilePicture:varchar("profile_picture",{length:512}),
     updatedAt: timestamp("updated_at")
                 .notNull()
                 .defaultNow()
