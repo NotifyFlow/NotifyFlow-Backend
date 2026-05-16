@@ -1,4 +1,4 @@
-import {IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import {IsBoolean, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
 
 export class NotificationDto{
     @IsString()
@@ -26,5 +26,8 @@ export class NotificationDto{
     @IsString()
     //@IsOptional()
     idempotencyKey:string
+
+    @IsBoolean()
+    smartOrchestration:boolean
 
 }

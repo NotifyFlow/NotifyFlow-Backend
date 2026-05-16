@@ -3,7 +3,7 @@ import { unique } from "drizzle-orm/pg-core";
 import { pgTable, varchar, timestamp, uuid, pgEnum,text,boolean, jsonb, uniqueIndex, index } from "drizzle-orm/pg-core";
 
 export const notificationTypeEnum = pgEnum("notification_type",[ "MESSAGE_RECEIVED","SYSTEM_ANNOUNCEMENT","ACCOUNT_ALERT","MARKETPLACE_UPDATE",]);
-export const statusEnum = pgEnum("status",["PENDING","PROCESSING","SENT","FAILED"]);
+export const statusEnum = pgEnum("status",["PENDING","PROCESSING","SENT","FAILED","WAITING_PRESENCE"]);
 export const channelEnum = pgEnum("channel",["IN_APP","EMAIL","PUSH"]);
 export const platformEnum = pgEnum("platform", ["WEB","ANDROID","IOS",]);
 export const subscriptionTierEnum = pgEnum("subscription_tier", ["FREE","PRO","ENTERPRISE"]);
@@ -41,6 +41,8 @@ export const recipients = pgTable(
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
+    
+    lastSeenAt:timestamp("last_seen_at")
   },
   (table) => ({
     tenantExternalUnique: uniqueIndex(
@@ -62,6 +64,7 @@ export const notifications = pgTable('notifications',{
     isRead: boolean("is_read").default(false).notNull(),
     idempotencyKey: varchar("idempotency_key", {length:255}),
     metadata: jsonb("metadata"),
+    smartOrchestration:boolean("smart_orchestration").default(false).notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
                 .notNull()
@@ -88,6 +91,7 @@ export const notificationDeliveries = pgTable("notification_deliveries",{
     notificationId: uuid("notification_id").notNull().references(()=>notifications.id , {onDelete:"cascade"}),
     channel: channelEnum("channel").notNull(),
     status: statusEnum("status").default("PENDING").notNull(),
+    //smartOrchestration:boolean("smart_orchestration").default(false).notNull(),
     provider: varchar("provider", { length: 50 }),
     errorMessage:text("error_message"),
     sentAt: timestamp("sent_at"),

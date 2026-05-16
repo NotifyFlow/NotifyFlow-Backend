@@ -1,7 +1,8 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq,sql } from "drizzle-orm";
 import { type DbExecutor } from "src/types/db.types";
 import { recipients } from "../schema/schema";
 import { db } from "..";
+
 
 
 
@@ -15,4 +16,9 @@ export async function getRecipientByExternalIdAndUserID(externalId:string,userId
     const conditions = [eq(recipients.externalId, externalId),eq(recipients.tenantId, userId)]
     const [rec] = await (executor ? executor : db).select().from(recipients).where(and(...conditions));
     return rec;
+}
+
+export async function getInactiveDays(recipientId:string){
+   const [{daysPassed}] = await db.select({daysPassed: sql<number>`FLOOR(EXTRACT(EPOCH FROM (NOW() - ${recipients.lastSeenAt})) / 86400)`}).from(recipients);
+   return daysPassed;
 }

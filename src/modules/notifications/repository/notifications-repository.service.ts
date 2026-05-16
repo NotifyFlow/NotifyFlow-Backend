@@ -10,7 +10,7 @@ import { countUnread } from "src/db/queries/notifications.query";
 export class NotificationRepositoryService{
     async createNotification(executor:DbExecutor,user:UserDto,notificactionDto:NotificationDto,recId:string)
     {
-        const notification = await createNotification(executor,user.id,recId,notificactionDto.title,notificactionDto.body,notificactionDto.type,notificactionDto.idempotencyKey,notificactionDto.metadata);
+        const notification = await createNotification(executor,user.id,recId,notificactionDto.title,notificactionDto.body,notificactionDto.type,notificactionDto.idempotencyKey,notificactionDto.smartOrchestration,notificactionDto.metadata);
         return notification;
     }
     

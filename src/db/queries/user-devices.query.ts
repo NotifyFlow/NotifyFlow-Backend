@@ -1,7 +1,7 @@
 import { PlatformType } from "src/types/db.types";
 import { db } from "..";
 import { userDevices } from "../schema/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 
 export async function createUserDevice(userId:string,fcmToken:string,platform:PlatformType,recipientId:string,deviceId:string)
 {
@@ -12,7 +12,7 @@ export async function createUserDevice(userId:string,fcmToken:string,platform:Pl
 
 export async function getFcmByRecipientId(recipientId:string)
 {
-    const fcmTokens = await db.select({fcmToken:userDevices.fcmToken}).from(userDevices).where(eq(userDevices.recipientId,recipientId));
+    const fcmTokens = await db.select({fcmToken:userDevices.fcmToken}).from(userDevices).where(and(eq(userDevices.recipientId,recipientId),eq(userDevices.isActive,true)));
     return fcmTokens;
 }
 
@@ -20,4 +20,16 @@ export async function setInactive(fcmToken:string)
 {
     await db.update(userDevices).set({isActive:false}).where(eq(userDevices.fcmToken,fcmToken));
     return;
+}
+
+export async function updateDeviceLastUsed(recipientId:string,deviceId:string)
+{
+    await db.update(userDevices).set({lastUsedAt:new Date(),updatedAt:new Date()}).where(and(eq(userDevices.recipientId,recipientId),eq(userDevices.deviceId,deviceId)));
+    return;
+}
+
+export async function getLatestLastUsed(recipientId:string)
+{
+    const [{latestLastUsed}] = await db.select({latestLastUsed: max(userDevices.lastUsedAt)}).from(userDevices).where(and(eq(userDevices.recipientId,recipientId),eq(userDevices.isActive,true)));
+    return latestLastUsed;
 }

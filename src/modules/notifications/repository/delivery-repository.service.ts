@@ -4,9 +4,9 @@ import { DbExecutor } from "src/types/db.types";
 
 @Injectable()
 export class DeliverRepositoryService{
-    async createDeliveries(executor:DbExecutor,notificationId:string,channels:("IN_APP" | "EMAIL" | "PUSH")[])
+    async createDeliveries(notificationId:string,channels:("IN_APP" | "EMAIL" | "PUSH")[],executor?:DbExecutor,status?:string)
     {
-        const deliveries = await createNotificationDeliveries(executor,notificationId,channels);
+        const deliveries = await createNotificationDeliveries(notificationId,channels,executor,status);
         return deliveries;
     }
 }   

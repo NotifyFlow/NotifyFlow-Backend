@@ -9,3 +9,15 @@ export type PublishDataType = {
         createdAt:Date
     }
 }
+
+export type DeliveryPlan = {
+    channel:"PUSH",
+    status:"PENDING"
+}
+
+type RecipientState = {
+   online:boolean;
+   recentlyActive:boolean;
+   inactiveDays:number;
+   reachableByPush:boolean;
+}

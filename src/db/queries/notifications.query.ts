@@ -5,9 +5,9 @@ import { DbExecutor, Type } from "src/types/db.types";
 
 
 
-export async function createNotification(executor:DbExecutor,userId:string,recipientId:string,title:string,body:string,type:Type,idempotencyKey:string,metadata?:JSON|object)
+export async function createNotification(executor:DbExecutor,userId:string,recipientId:string,title:string,body:string,type:Type,idempotencyKey:string,smartOrchestration:boolean,metadata?:JSON|object)
 {
-    const [notification] = await executor.insert(notifications).values({userId:userId,recipientId:recipientId,title:title,body:body,type:type,idempotencyKey:idempotencyKey,metadata:metadata}).returning();
+    const [notification] = await executor.insert(notifications).values({userId:userId,recipientId:recipientId,title:title,body:body,type:type,idempotencyKey:idempotencyKey,smartOrchestration:smartOrchestration,metadata:metadata}).returning();
     return notification;
 }
 

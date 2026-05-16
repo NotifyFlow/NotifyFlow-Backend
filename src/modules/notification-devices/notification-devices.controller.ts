@@ -1,17 +1,20 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
-import {type Request } from 'express';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+
 import { RegisterBodyDto } from './dto/register.dto';
 import { NotificationDevicesService } from './notification-devices.service';
+import { AuthGaurd } from '../auth/guards/auth.guard';
+import { CurrentUser } from '../auth/decorators/currentuser.decorator';
+import {type CurrentUserType } from 'src/types/db.types';
 
 @Controller('notification-devices')
 export class NotificationDevicesController {
     constructor(private notificationDeviceRegister:NotificationDevicesService){};
 
     @Post('register')
-    async register(@Req() req:Request ,@Body() registerDto:RegisterBodyDto)
+    @UseGuards(AuthGaurd)
+    async register(@CurrentUser() user:CurrentUserType ,@Body() registerDto:RegisterBodyDto)
     {
-        //@ts-ignore
-        const user  = req.user as UserDto;
-        return await this.notificationDeviceRegister.registerFcmToken(user.id,registerDto);
+
+        return await this.notificationDeviceRegister.registerFcmToken(user.userId,registerDto);
     }
 }

@@ -13,6 +13,7 @@ export type subscriptionTierType = "FREE"|"PRO"|"ENTERPRISE";
 
 
 export type NotificationType = typeof schema.notifications.$inferSelect;
+export type DeliveryType = typeof schema.notificationDeliveries.$inferInsert;
 
 export type PlatformType = "WEB" | "ANDROID" | "IOS";
 export type CurrentUserType = {userId:string,email:string};

@@ -11,13 +11,18 @@ import { UnreadQueryDto } from './dto/unread-count.dto';
 import { pushQueue } from 'src/infrastructure/queues/push.queue';
 import { emailQueue } from 'src/infrastructure/queues/email.queue';
 import { inAppQueue } from 'src/infrastructure/queues/inapp.queue';
+import { EngineService } from '../orchestration/engine/engine.service';
+import { RoutingService } from '../orchestration/routing/routing.service';
+import { NotificationType } from 'src/types/db.types';
 
 
 @Injectable()
 export class NotificationsService {
     constructor(private notificationRepositorySerice:NotificationRepositoryService , 
                     private recipientRepositoryService:RecipientRepositoryService
-                , private deliveryRepositoryService:DeliverRepositoryService){}
+                , private deliveryRepositoryService:DeliverRepositoryService,
+                    private engineService:EngineService,
+                ){}
     /*
     Okay in this Create notification API, we are doin g these things in series:
         - Checking Idempotency, if a notification exists in the table with the same Idempotency Key, we will return the user's req
@@ -32,45 +37,27 @@ export class NotificationsService {
     async createNotification(user:UserDto,notificactionDto:NotificationDto)
     {   
         const idempotencyKey = notificactionDto.idempotencyKey;
-        const res = await db.transaction(async(tx)=>{
+
+        const result = await db.transaction(async(tx)=>{
             const existingNotification = await this.notificationRepositorySerice.notificationExistsByIdempotencyKey(tx,idempotencyKey,user.id);
             if(existingNotification)
                 return existingNotification;
-            const recId = await this.recipientRepositoryService.getRecipientId(user.id,notificactionDto.recepientId,tx);
+            const recId = await this.recipientRepositoryService.getRecipientId(user.id,notificactionDto.recepientId,tx);    
             const notification = await this.notificationRepositorySerice.createNotification(tx,user,notificactionDto,recId);
-            const deliveries = await this.deliveryRepositoryService.createDeliveries(tx,notification.id,notificactionDto.channel);
-            return {notification,deliveries};
+            return {notification,recipientId:recId};
         });   
         
-        if(!("deliveries" in res))        
-            return res;
-        
-        const queueMap = {
-            PUSH: pushQueue,
-            EMAIL: emailQueue,
-            IN_APP: inAppQueue,
-            };
-        
-        const deliveries = res.deliveries;
-        
-        await Promise.all(deliveries.map(async(job)=>{
-            const queue = queueMap[job.channel];
-            
-            if(!queue)return;
+        if(!("recipientId" in result))        
+            return result;
 
-            await queue.add(`SEND_${job.channel}`,
-                            {deliveryId:job.id},
-                            {attempts:3,
-                             backoff:{
-                                type:"exponential",
-                                delay:5000
-                                },
-                             removeOnComplete:true
-                             },
-                        );
-        }))
+        const typedResult = result as {
+                                        notification:NotificationType,
+                                        recipientId:string
+                                    };
         
-        return res;
+        const deliveries = await this.engineService.orchestrate(typedResult.notification,notificactionDto.channel);
+        
+        return {notificaton:typedResult.notification,deliveries};
     }
 
     /**

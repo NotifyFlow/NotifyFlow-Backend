@@ -3,13 +3,15 @@ import { Server, Socket } from "socket.io";
 import { SocketRegistryService } from "../registry/socket-registry.service";
 import { BadRequestException, UseGuards } from "@nestjs/common";
 import { RealtimeAuthService } from "src/modules/auth/services/realtime-auth.service";
+import { EngineService } from "src/modules/orchestration/engine/engine.service";
 
 
 @WebSocketGateway({cors:{origin:"*"}})
 export class NotificationWebSocketGateway implements OnGatewayConnection, OnGatewayDisconnect
 {
     constructor(private registryService:SocketRegistryService,
-                private webSocketAuthService:RealtimeAuthService
+                private webSocketAuthService:RealtimeAuthService,
+                private engineService:EngineService
      ){};
 
     @WebSocketServer()
@@ -17,17 +19,18 @@ export class NotificationWebSocketGateway implements OnGatewayConnection, OnGate
 
     async handleConnection(client: Socket) {
        try{
-         const recipientId = await this.webSocketAuthService.validateRealtimeTokens(client);
+         const {recipientId,deviceId} = await this.webSocketAuthService.validateRealtimeTokens(client);
 
          if(!recipientId)
             throw new BadRequestException("JWT TOken unaivaiable");
 
-         this.registryService.addSocket(recipientId,client.id);
-
-         console.log(`[REALTIME] Added socket ${client.id} to ${recipientId}`)
+         await this.registryService.addSocket(recipientId,client.id,deviceId);
+         console.log(`[REALTIME] Added socket ${client.id} to ${recipientId}`);
+         await this.engineService.processWaitingForPresence(recipientId);
        }
        catch(e)
        {
+        console.error(e);
         client.disconnect()
        }
     }
@@ -40,16 +43,17 @@ export class NotificationWebSocketGateway implements OnGatewayConnection, OnGate
     @SubscribeMessage("REGISTER_RECIPIENT")
     registerRecipient(
         @ConnectedSocket() client:Socket,
-        @MessageBody() recipientId:string
+        @MessageBody() data:{recipientId:string,deviceId:string}
     )
     {
         this.registryService.addSocket(
-            recipientId,
-            client.id
+            data.recipientId,
+            client.id,
+            data.deviceId
         );
 
         console.log(
-            `[Realtime] Recipient ${recipientId} registered to socket ${client.id}`
+            `[Realtime] Recipient ${data.recipientId} registered to socket ${client.id}`
         );
     }
 }

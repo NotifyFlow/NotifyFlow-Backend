@@ -1,14 +1,14 @@
 import { DbExecutor } from "../../types/db.types";
 import { notificationDeliveries } from "../schema/schema";
 import { db } from "..";
-import { and, eq } from "drizzle-orm";
+import { and, eq ,inArray} from "drizzle-orm";
 
 
 
-export async function createNotificationDeliveries(executor:DbExecutor,notificationId:string,channels:("IN_APP" | "EMAIL" | "PUSH")[])
+export async function createNotificationDeliveries(notificationId:string,channels:("IN_APP" | "EMAIL" | "PUSH")[],executor?:DbExecutor,status?:string)
 {
-    const values = channels.map((channel)=>({notificationId:notificationId,channel:channel}));
-    const deliveries = await executor.insert(notificationDeliveries).values(values).returning();
+    const values = channels.map((channel)=>({notificationId:notificationId,channel:channel,status:status??"PENDING"}));
+    const deliveries = await (executor ?? db).insert(notificationDeliveries).values(values).returning();
     return deliveries;
 }
 
@@ -36,3 +36,7 @@ export async function setPendingById(deliveryId:string)
     return delivery;
 }
 
+export async function setPendingByIds(deliveryIds:string[])
+{
+    await db.update(notificationDeliveries).set({status:"PENDING"}).where(inArray(notificationDeliveries.id,deliveryIds));
+}

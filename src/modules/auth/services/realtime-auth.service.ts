@@ -11,9 +11,10 @@ export class RealtimeAuthService{
     async validateRealtimeTokens(client:Socket)
     {
         const token = client.handshake.auth.token;
+        const deviceId = client.handshake.auth.deviceId
         if(!token)
             throw new BadRequestException("JWT TOken unaivaiable");
         const payload = await this.jwtService.verifyAsync(token,{secret:env.REALTIME_JWT_SECRET});
-        return payload.recipientId;
+        return {recipientId: payload.recipientId,deviceId};
     }
 }

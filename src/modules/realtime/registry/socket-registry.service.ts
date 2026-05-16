@@ -1,51 +1,71 @@
 import { Injectable } from "@nestjs/common";
+import { updateDeviceLastUsed } from "src/db/queries/user-devices.query";
 
 @Injectable()
 export class SocketRegistryService
 {
-    private registry = new Map<string,Set<string>>();
+    private registry = new Map<string, Map<string, Set<string>>>();
 
-    addSocket(recipientId:string,socketId:string)
+    async addSocket(recipientId:string,socketId:string,deviceId:string)
     {
-        let sockets =this.registry.get(recipientId);
-        if(!sockets)
+        let deviceMap =this.registry.get(recipientId);
+        if(!deviceMap)
         {
-            sockets = new Set<string>();
-            this.registry.set(
-                recipientId,
-                sockets
-            );
+            deviceMap = new Map<string,Set<string>>();
+            this.registry.set(recipientId,deviceMap);
         }
-        sockets.add(socketId);
-        console.log(
-            `[GATEWAY_REGISTRY] Recipient Id: ${recipientId}, socketId:${socketId} registered`
-        );
-    }
 
-    deleteSocket(socketId:string)
+        let sockets = deviceMap.get(deviceId);
+        if(!sockets)
+        {   
+            sockets = new Set<string>();
+            sockets.add(socketId);
+        }
+
+        sockets.add(socketId);
+        await updateDeviceLastUsed(recipientId,deviceId);
+        console.log(`[GATEWAY_REGISTRY] RecipientId=${recipientId} DeviceId=${deviceId} SocketId=${socketId} registered`);
+        
+    }
+    
+
+    deleteSocket(socketId:string) 
     {
-        for(const [recipientId,sockets] of this.registry.entries())
+        for(const [recipientId, deviceMap] of this.registry.entries()) 
         {
-            if(sockets.has(socketId))
-            {
-                sockets.delete(socketId);
-                if(sockets.size === 0){
-                    this.registry.delete(recipientId);
-                    console.log(`[GATEWAY_REGISTRY] for Recipeint Id: ${recipientId} , socketId:${socketId} is deleted`);
+            for(const [deviceId, sockets] of deviceMap.entries()) {
+                if(sockets.has(socketId)) 
+                {
+                    sockets.delete(socketId);
+                    if(sockets.size === 0) 
+                        deviceMap.delete(deviceId);
+                    if(deviceMap.size === 0) 
+                        this.registry.delete(recipientId);
+                    console.log(`[GATEWAY_REGISTRY] RecipientId=${recipientId} DeviceId=${deviceId} SocketId=${socketId} deleted`);
+                    return;
                 }
-                break;
             }
         }
     }
 
     getSocketsByRecipientId(recipientId:string)
     {
-        return this.registry.get(recipientId);
+        return this.registry.get(recipientId);;
     }
 
+    getSocketsByDeviceId(recipientId:string, deviceId:string) 
+    {
+        return this.registry.get(recipientId)?.get(deviceId);
+    }
+    
     hasRecipient(recipientId:string)
     {
         return this.registry.has(recipientId);
+    }
+
+    hasDevice(recipientId:string, deviceId:string) 
+    {
+        return this.registry.get(recipientId)?.has(deviceId) ?? false;
     }
 
     getConnectedRecipientCount()
@@ -53,5 +73,8 @@ export class SocketRegistryService
         return this.registry.size;
     }
 
-    getAllSockets(){}
+    getAllSockets()
+    {
+        return  this.registry;
+    }
 }
