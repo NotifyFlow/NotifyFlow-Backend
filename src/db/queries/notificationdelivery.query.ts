@@ -1,11 +1,11 @@
-import { DbExecutor } from "../../types/db.types";
+import { DbExecutor, DeliveryStatus } from "../../types/db.types";
 import { notificationDeliveries } from "../schema/schema";
 import { db } from "..";
 import { and, eq ,inArray} from "drizzle-orm";
 
 
 
-export async function createNotificationDeliveries(notificationId:string,channels:("IN_APP" | "EMAIL" | "PUSH")[],executor?:DbExecutor,status?:string)
+export async function createNotificationDeliveries(notificationId:string,channels:("IN_APP" | "EMAIL" | "PUSH")[],executor?:DbExecutor,status?:DeliveryStatus)
 {
     const values = channels.map((channel)=>({notificationId:notificationId,channel:channel,status:status??"PENDING"}));
     const deliveries = await (executor ?? db).insert(notificationDeliveries).values(values).returning();

@@ -1,18 +1,14 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { UserDto } from './dto/user-schema.dto';
-import { NotificationDto } from './dto/create-notification.dto';
-import { NotificationRepositoryService } from './repository/notifications-repository.service';
-import { RecipientRepositoryService } from './repository/recipient-repository.service';
-import { DeliverRepositoryService } from './repository/delivery-repository.service';
+import { UserDto } from '../dto/user-schema.dto';
+import { NotificationDto } from '../dto/create-notification.dto';
+import { NotificationRepositoryService } from '../repository/notifications-repository.service';
+import { RecipientRepositoryService } from '../repository/recipient-repository.service';
+import { DeliverRepositoryService } from '../repository/delivery-repository.service';
 import { db } from 'src/db';
-import { GetNotificationDto } from './dto/get-notification.dto';
-import { ReadBodyDto, ReadParamDto, RecipientDto } from './dto/update-notifcation.dto';
-import { UnreadQueryDto } from './dto/unread-count.dto';
-import { pushQueue } from 'src/infrastructure/queues/push.queue';
-import { emailQueue } from 'src/infrastructure/queues/email.queue';
-import { inAppQueue } from 'src/infrastructure/queues/inapp.queue';
-import { EngineService } from '../orchestration/engine/engine.service';
-import { RoutingService } from '../orchestration/routing/routing.service';
+import { GetNotificationDto } from '../dto/get-notification.dto';
+import { ReadBodyDto, ReadParamDto, RecipientDto } from '../dto/update-notifcation.dto';
+import { UnreadQueryDto } from '../dto/unread-count.dto';
+import { EngineService } from '../../orchestration/engine/engine.service';
 import { NotificationType } from 'src/types/db.types';
 
 
@@ -34,16 +30,16 @@ export class NotificationsService {
         - Basically, Delivery Status of each notification is stored in this table
         - 
     */ 
-    async createNotification(user:UserDto,notificactionDto:NotificationDto)
+    async createNotification(userId:string,notificactionDto:NotificationDto)
     {   
         const idempotencyKey = notificactionDto.idempotencyKey;
 
         const result = await db.transaction(async(tx)=>{
-            const existingNotification = await this.notificationRepositorySerice.notificationExistsByIdempotencyKey(tx,idempotencyKey,user.id);
+            const existingNotification = await this.notificationRepositorySerice.notificationExistsByIdempotencyKey(tx,idempotencyKey,userId);
             if(existingNotification)
                 return existingNotification;
-            const recId = await this.recipientRepositoryService.getRecipientId(user.id,notificactionDto.recepientId,tx);    
-            const notification = await this.notificationRepositorySerice.createNotification(tx,user,notificactionDto,recId);
+            const recId = await this.recipientRepositoryService.getRecipientId(userId,notificactionDto.recepientId,tx);    
+            const notification = await this.notificationRepositorySerice.createNotification(tx,userId,notificactionDto,recId);
             return {notification,recipientId:recId};
         });   
         
@@ -63,12 +59,12 @@ export class NotificationsService {
     /**
      - This endpoint is being Created to return all the notifications sent by a company/developer's app to an recipient
      */
-    async getNotifications(userDto:UserDto,getNotifDto:GetNotificationDto)
+    async getNotifications(userId:string,getNotifDto:GetNotificationDto)
     {
         let offset;
         if(getNotifDto.page !== undefined && getNotifDto.limit !== undefined)
             offset = (getNotifDto.page-1)*getNotifDto.limit;
-        const recipientId = await this.recipientRepositoryService.getRecipientId(userDto.id,getNotifDto.recipientId);
+        const recipientId = await this.recipientRepositoryService.getRecipientId(userId,getNotifDto.recipientId);
         const notifications = await this.notificationRepositorySerice.getNotifications(recipientId,getNotifDto.orderBy,offset,getNotifDto.limit);
         return notifications;
     }

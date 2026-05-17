@@ -19,3 +19,17 @@ export type PlatformType = "WEB" | "ANDROID" | "IOS";
 export type CurrentUserType = {userId:string,email:string};
 
 export type WierdType = {}
+type DeliveryStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "SENT"
+  | "FAILED"
+  | "WAITING_PRESENCE";
+
+export type UsageEventType = "NOTIFICATION_CREATED"|
+      "EMAIL_SENT"|
+      "PUSH_SENT"|
+      "IN_APP_SENT"|
+      "API_REQUEST"
+
+export type TierType = "FREE"|"PRO"|"ENTERPISE"

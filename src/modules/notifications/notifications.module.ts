@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { NotificationsController } from './notifications.controller';
+import { NotificationsController } from './controllers/notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { UsersModule } from '../users/users.module';
 import { NotificationDevicesModule } from '../notification-devices/notification-devices.module';

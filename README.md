@@ -1,4 +1,4 @@
-# NaaS Backend
+# NotifyFlow Backend
 
 A backend notification platform built with NestJS 11, BullMQ, Redis, PostgreSQL, Firebase, and Socket.IO.
 

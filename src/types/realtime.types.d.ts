@@ -15,9 +15,10 @@ export type DeliveryPlan = {
     status:"PENDING"
 }
 
-type RecipientState = {
+export type RecipientState = {
    online:boolean;
    recentlyActive:boolean;
    inactiveDays:number;
    reachableByPush:boolean;
 }
+

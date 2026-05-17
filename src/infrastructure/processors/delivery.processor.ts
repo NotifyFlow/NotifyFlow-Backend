@@ -30,7 +30,6 @@ export default async function processDelivery(job:Job)
             console.log(`[PROCESSOR] Sent notification to ${jobName.split('',5)[1]}`)
             handlerMap[jobName](notification);
         }
-
         
         await setSentById(deliveryId);
         console.log(`[PUSH] delivery=${deliveryId} successfully sent!`);

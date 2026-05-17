@@ -60,4 +60,9 @@ export class EngineService{
         if(deliveries.length > 0)
             await clearWaitingPresenceDelivery(recipientId);
     }
+
+    async markSent(deliveryId:string)
+    {
+        await this.deliveryRepositoryService.setSentByDeliveryId(deliveryId);
+    }
 }

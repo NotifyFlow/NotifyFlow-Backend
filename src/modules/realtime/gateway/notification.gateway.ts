@@ -56,4 +56,20 @@ export class NotificationWebSocketGateway implements OnGatewayConnection, OnGate
             `[Realtime] Recipient ${data.recipientId} registered to socket ${client.id}`
         );
     }
+
+    @SubscribeMessage("NOTIFICATION_ACK")
+    async acknowledgeNotification( @ConnectedSocket() client:Socket, @MessageBody() data:{deliveryId:string})
+    {
+        try{
+            await this.engineService.markSent(data.deliveryId);
+
+            client.emit("ACKNOLEDGEMENT_RECIEVED",{deliveryId:data.deliveryId});
+
+            console.log(`[Realtime ACK] Delivery ${data.deliveryId} acknowledged`);
+        }
+        catch(e)
+        {
+            console.log(`[Realtime ACK ERROR]: `,e);
+        }
+    }
 }
