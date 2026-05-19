@@ -58,7 +58,7 @@ export class NotificationWebSocketGateway implements OnGatewayConnection, OnGate
     }
 
     @SubscribeMessage("NOTIFICATION_ACK")
-    async acknowledgeNotification( @ConnectedSocket() client:Socket, @MessageBody() data:{deliveryId:string})
+    async acknowledgeNotification( @ConnectedSocket() client:Socket, @MessageBody() data:{deliveryId:string,notificationId:string})
     {
         try{
             await this.engineService.markSent(data.deliveryId);

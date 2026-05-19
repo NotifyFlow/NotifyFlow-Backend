@@ -1,9 +1,9 @@
 
 import { unique } from "drizzle-orm/pg-core";
-import { pgTable, varchar, timestamp, uuid, pgEnum,text,boolean, jsonb, uniqueIndex, index } from "drizzle-orm/pg-core";
+import { pgTable, varchar,integer, timestamp, uuid, pgEnum,text,boolean, jsonb, uniqueIndex, index } from "drizzle-orm/pg-core";
 
 export const notificationTypeEnum = pgEnum("notification_type",[ "MESSAGE_RECEIVED","SYSTEM_ANNOUNCEMENT","ACCOUNT_ALERT","MARKETPLACE_UPDATE",]);
-export const statusEnum = pgEnum("status",["PENDING","PROCESSING","SENT","FAILED","WAITING_PRESENCE"]);
+export const statusEnum = pgEnum("status",["PENDING","PROCESSING","SENT","FAILED","WAITING_PRESENCE","PUBLISHED"]);
 export const channelEnum = pgEnum("channel",["IN_APP","EMAIL","PUSH"]);
 export const platformEnum = pgEnum("platform", ["WEB","ANDROID","IOS",]);
 export const subscriptionTierEnum = pgEnum("subscription_tier", ["FREE","PRO","ENTERPRISE"]);
@@ -59,8 +59,8 @@ export const notifications = pgTable('notifications',{
     userId: uuid("user_id").notNull().references(()=>users.id, {onDelete:"cascade"}),
     recipientId: uuid("recepient_id").notNull().references(()=>recipients.id,{onDelete:"cascade"}),
     title: varchar("title",{ length: 150 }).notNull(),
-    body:  text("body").notNull(),
-    type:   notificationTypeEnum("type").notNull(),
+    body: text("body").notNull(),
+    type: notificationTypeEnum("type").notNull(),
     isRead: boolean("is_read").default(false).notNull(),
     idempotencyKey: varchar("idempotency_key", {length:255}),
     metadata: jsonb("metadata"),
@@ -79,6 +79,8 @@ export const notifications = pgTable('notifications',{
         table.createdAt
         ),
 
+       
+
         idempotencyIdx: index(
         "notifications_idempotency_idx"
         ).on(table.idempotencyKey),
@@ -88,12 +90,15 @@ export const notifications = pgTable('notifications',{
 
 export const notificationDeliveries = pgTable("notification_deliveries",{
     id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(()=>users.id, {onDelete:"cascade"}),
     notificationId: uuid("notification_id").notNull().references(()=>notifications.id , {onDelete:"cascade"}),
     channel: channelEnum("channel").notNull(),
     status: statusEnum("status").default("PENDING").notNull(),
-    //smartOrchestration:boolean("smart_orchestration").default(false).notNull(),
     provider: varchar("provider", { length: 50 }),
+    providerMessageId: varchar("provider_message_id", {length:255}), // Example Firebase message id, resend email id, useful for delivery tracing
+    providerErrorCode: varchar("provider_error_code", {length:100}),
     errorMessage:text("error_message"),
+    retryCount: integer("retry_count").default(0).notNull(),
     sentAt: timestamp("sent_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
@@ -106,7 +111,7 @@ export const notificationDeliveries = pgTable("notification_deliveries",{
     ).on(table.notificationId),
 
     statusIdx: index("delivery_status_idx").on(
-      table.status
+      table.status,table.channel
     ),
 
     channelIdx: index("delivery_channel_idx").on(

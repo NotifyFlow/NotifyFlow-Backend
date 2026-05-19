@@ -17,6 +17,9 @@ This repository implements a Notification-as-a-Service backend that supports:
 
 ![Current Architecture](architecture.png)
 
+## Retry Flow In Workers:
+![alt text](retry-flow.png)
+
 ## Core Project Flow
 
 1. **HTTP API**

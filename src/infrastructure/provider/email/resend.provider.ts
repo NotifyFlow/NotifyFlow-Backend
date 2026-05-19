@@ -1,7 +1,8 @@
 import { NotificationType } from "src/types/db.types";
 import nodemailer from "nodemailer";
+import { DeliveryProviderResult } from "src/types/infra/infra.type";
 
-export async function resendProvider(fromMailId:string,apiKey:string,notification:NotificationType)
+export async function resendProvider(fromMailId:string,apiKey:string,notification:NotificationType):Promise<DeliveryProviderResult>
 {
     const transporter = nodemailer.createTransport({
                                                     host: 'smtp.resend.com',
@@ -21,4 +22,8 @@ export async function resendProvider(fromMailId:string,apiKey:string,notificatio
                                                 html: `<title>${notification.title}</title>
                                                        <body>${notification.body}</body>`,
                                             });
+    return {
+        provider:"RESEND",
+        providerMessageId:info.messageId
+    }
 }

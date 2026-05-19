@@ -10,6 +10,13 @@ export async function createUserDevice(userId:string,fcmToken:string,platform:Pl
     return record;
 }
 
+
+export async function refreshFcmTokenByDeviceId(deviceId:string,fcmToken:string)
+{
+    const [newRecord] = await db.update(userDevices).set({fcmToken:fcmToken}).where(eq(userDevices.deviceId,deviceId)).returning();
+    return newRecord;
+}
+
 export async function getFcmByRecipientId(recipientId:string)
 {
     const fcmTokens = await db.select({fcmToken:userDevices.fcmToken}).from(userDevices).where(and(eq(userDevices.recipientId,recipientId),eq(userDevices.isActive,true)));
@@ -21,6 +28,13 @@ export async function setInactive(fcmToken:string)
     await db.update(userDevices).set({isActive:false}).where(eq(userDevices.fcmToken,fcmToken));
     return;
 }
+
+export async function setDeviceInactiveByDeviceId(deviceId:string)
+{
+    await db.update(userDevices).set({isActive:false}).where(eq(userDevices.deviceId,deviceId));
+    return;
+}
+
 
 export async function updateDeviceLastUsed(recipientId:string,deviceId:string)
 {

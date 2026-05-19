@@ -1,10 +1,11 @@
 import { ForbiddenException } from "@nestjs/common";
 
-export class NotRetyableError extends Error{
-    constructor(message:string)
+export class NotRetryableError extends Error
+{
+    constructor(message:string,public providerErrorCode?:string)
     {
         super(message);
-        this.name = "NonRetyableError";
+        this.name = "NotRetryableError";
     }
 }
 

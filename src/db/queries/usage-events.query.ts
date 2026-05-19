@@ -3,7 +3,7 @@ import { db } from "..";
 import { usageEvents } from "../schema/usageEvents_table";
 import { and, eq, gt, gte, sum } from "drizzle-orm";
 
-export async function recordUsageEventByRecipientId(userId:string,type:UsageEventType)
+export async function recordUsageEventByUserId(userId:string,type:UsageEventType)
 {
     const [record] = await db.insert(usageEvents).values({userId,type}).returning();
     return record;

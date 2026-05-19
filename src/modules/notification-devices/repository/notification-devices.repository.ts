@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { createUserDevice } from "src/db/queries/user-devices.query";
+import { createUserDevice, refreshFcmTokenByDeviceId } from "src/db/queries/user-devices.query";
 import { PlatformType } from "src/types/db.types";
 
 @Injectable()
@@ -8,5 +8,10 @@ export class UserDevicesRepositoryService{
     {
         const record = await createUserDevice(userId,fcmToken,platform,recipientId,deviceId);
         return record;
+    }
+
+    async refreshFcmTokenByDeviceId(deviceId:string,fcmToken:string)
+    {
+        return await refreshFcmTokenByDeviceId(deviceId,fcmToken);
     }
 }

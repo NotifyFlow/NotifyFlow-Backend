@@ -7,12 +7,14 @@ import { RoutingService } from "../routing/routing.service";
 import { DeliverRepositoryService } from "src/modules/notifications/repository/delivery-repository.service";
 import { clearWaitingPresenceDelivery, getWaitingPresenceDelivery } from "src/modules/realtime/redis/redis-waiting-presence";
 import { setPendingByIds } from "src/db/queries/notificationdelivery.query";
+import { UsageMetricRepositoryService } from "src/modules/usage-metering/repository/usage-metering.repository";
 
 
 @Injectable()
 export class EngineService{
     constructor(private routingService:RoutingService,
                 private deliveryRepositoryService:DeliverRepositoryService,
+                private usageMeteringRepositoryService:UsageMetricRepositoryService
                 ){};
 
     private queueMap = {
@@ -25,10 +27,10 @@ export class EngineService{
     {
         const smartOrchestration = notificaton.smartOrchestration;
         const recipientId = notificaton.recipientId;
-        const finalChannels = (smartOrchestration) ? await      this.routingService.decideBestChannel(recipientId,channels) : await this.routingService.handleManualModeChannels(recipientId,channels,notificaton.id);
+        const finalChannels = (smartOrchestration) ? await this.routingService.decideBestChannel(recipientId,channels) : await this.routingService.handleManualModeChannels(recipientId,channels,notificaton.id);
         if(!finalChannels)
             throw new BadRequestException("Channels unavailable");
-        const deliveries = await this.deliveryRepositoryService.createDeliveries(notificaton.id,finalChannels);
+        const deliveries = await this.deliveryRepositoryService.createDeliveries(notificaton.id,notificaton.userId,finalChannels);
         await this.enqueJobs(deliveries);
     }
 
@@ -63,6 +65,7 @@ export class EngineService{
 
     async markSent(deliveryId:string)
     {
-        await this.deliveryRepositoryService.setSentByDeliveryId(deliveryId);
+        const delivery = await this.deliveryRepositoryService.setSentByDeliveryId(deliveryId);
+        await this.usageMeteringRepositoryService.recordUsageEvent(delivery.userId,"IN_APP_SENT")
     }
 }
