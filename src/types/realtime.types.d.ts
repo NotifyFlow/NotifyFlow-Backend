@@ -2,6 +2,7 @@ export type PublishDataType = {
     type:string,
     recipientId:string,
     payload:{
+        deliveryId:string,
         notificationId:string,
         notificationType:string,
         title:string,

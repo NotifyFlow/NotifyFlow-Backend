@@ -1,12 +1,12 @@
 import { getEmailConfigByUserId } from "src/db/queries/useremailproviders.query";
-import { NotificationType } from "src/types/db.types";
+import { DeliveryType, NotificationType } from "src/types/db.types";
 import { resendProvider } from "../provider/email/resend.provider";
 import { decrypt } from "src/utils/encryption";
 import { env } from "src/config/env";
 import { NotRetryableError } from "src/utils/errorhandling";
 
 
-export default async function emailHandler(notification:NotificationType)
+export default async function emailHandler(notification:NotificationType,delivery:DeliveryType)
 {
     const providerMap = {
         "RESEND":resendProvider

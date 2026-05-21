@@ -33,7 +33,7 @@ export default async function processDelivery(job:Job)
             throw new Error("Unsupported job type");
 
         console.log(`[PROCESSOR] Sent notification to ${jobName.split('_')[1]}`)
-        deliveryResult = await handler(notification);
+        deliveryResult = await handler(notification,delivery);
         
         if(jobName === "SEND_IN_APP")
         {
