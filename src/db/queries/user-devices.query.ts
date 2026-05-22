@@ -29,9 +29,9 @@ export async function setInactive(fcmToken:string)
     return;
 }
 
-export async function setDeviceInactiveByDeviceId(deviceId:string)
+export async function setDeviceInactiveByDeviceId(deviceId:string,recipientId:string)
 {
-    await db.update(userDevices).set({isActive:false}).where(eq(userDevices.deviceId,deviceId));
+    await db.update(userDevices).set({isActive:false}).where(and(eq(userDevices.deviceId,deviceId),eq(userDevices.recipientId,recipientId)));
     return;
 }
 

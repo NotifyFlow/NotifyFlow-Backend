@@ -5,7 +5,7 @@ import { NotificationDevicesService } from '../services/notification-devices.ser
 import { ApiKeyGuard } from '../../auth/guards/api-key.guard';
 import { User } from '../../notifications/decorators/user.decorator';
 import {type UserType } from 'src/types/user.types';
-import { DeactivateDeviceParamDto } from '../dto/deactivate.dto';
+import { DeactivateDeviceBodyDto } from '../dto/deactivate.dto';
 import { RefreshDto } from '../dto/refresh.dto';
 
 @UseGuards(ApiKeyGuard)
@@ -27,9 +27,9 @@ export class NotificationDevicesController {
         return await this.notificationDeviceService.refreshFcmToken(refreshDto);
     }
 
-    @Patch('/:deviceId/deactivate')
-    async deactivateDevice(@Param('deviceId') param:DeactivateDeviceParamDto )
+    @Post('/deactivate')
+    async deactivateDevice(@User() user:UserType, @Body() param:DeactivateDeviceBodyDto )
     {
-        await this.notificationDeviceRegister.setDeviceInactiveByDeviceId(param.deviceId);
+        await this.notificationDeviceRegister.setDeviceInactiveByDeviceId(user.id,param);
     }
 }
